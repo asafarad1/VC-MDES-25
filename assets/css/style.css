@@ -1,0 +1,50 @@
+@font-face {
+  font-family: "MarfaVar";
+  src: url("../fonts/ABCMarfaVariable-5.ttf") format("truetype");
+  font-weight: 100 900;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  font-family: "MarfaVar", sans-serif;
+  font-variation-settings: 'MONO' 1;
+}
+
+canvas {
+  display: block;
+  font-family: "MarfaVar", sans-serif;
+  font-variation-settings: 'MONO' 1;
+}
+
+#controls {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: rgba(255, 255, 255, 0.9);
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.slider-container {
+  margin-bottom: 15px;
+}
+
+.slider-container label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+.slider-container input[type="range"] {
+  width: 200px;
+  margin-right: 10px;
+}
+
+.slider-container span {
+  display: inline-block;
+  min-width: 40px;
+  text-align: right;
+}

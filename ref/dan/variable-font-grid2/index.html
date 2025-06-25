@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <title>Variable Font Grid (HTML/CSS)</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Recursive:slnt,wght,CASL,CRSV,MONO@-15..0,300..1000,0..1,0..1,0..1&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="container">
+        <div class="grid-wrapper">
+            <div class="grid" id="grid"></div>
+        </div>
+        <div class="right-panel">
+            <div id="controls">
+                <!-- 1. Text Input -->
+                <div class="control-section">
+                    <label>Text Input: <input id="fileInput" type="file" accept=".txt"></label>
+                </div>
+
+                <!-- 2. Weight Drop-down -->
+                <div class="control-section">
+                    <label>Weight: <select id="weightMode">
+                            <option value="interactive">Interactive Slider</option>
+                            <option value="motion">Ping-Pong Motion</option>
+                            <option value="video">Video Input</option>
+                        </select></label>
+
+                    <div id="weightInteractive" class="mode-control active">
+                        <label>Weight: <input id="weight" type="range" min="100" max="900" value="900"></label>
+                    </div>
+
+                    <div id="weightMotion" class="mode-control">
+                        <label>Weight: <input id="weightMotionSlider" type="range" min="100" max="900" value="900"
+                                disabled></label>
+                        <label>Speed: <input id="weightSpeed" type="number" min="0.1" max="10" step="0.1"
+                                value="1"></label>
+                    </div>
+
+                    <div id="weightVideoMode" class="mode-control">
+                        <label>Video Input: <input id="weightVideoInput" type="file" accept="video/*"></label>
+                    </div>
+                </div>
+
+                <!-- 3. Slant Drop-down -->
+                <div class="control-section">
+                    <label>Slant: <select id="slantMode">
+                            <option value="interactive">Interactive Slider</option>
+                            <option value="motion">Ping-Pong Motion</option>
+                            <option value="random">Smooth Random Jump</option>
+                            <option value="smoothRandom">Motion Random Jump</option>
+                        </select></label>
+
+                    <div id="slantInteractive" class="mode-control active">
+                        <label>Slant: <input id="slnt" type="range" min="-16" max="0" value="0"></label>
+                    </div>
+
+                    <div id="slantMotion" class="mode-control">
+                        <label>Slant: <input id="slntMotionSlider" type="range" min="-16" max="0" value="0"
+                                disabled></label>
+                        <label>Speed: <input id="slntSpeed" type="number" min="0.1" max="10" step="0.1"
+                                value="1"></label>
+                    </div>
+
+                    <div id="slantRandom" class="mode-control">
+                        <label>Min Duration: <input id="slntRandomMinDuration" type="number" min="0.1" max="5.0"
+                                step="0.1" value="1"></label>
+                        <label>Max Duration: <input id="slntRandomMaxDuration" type="number" min="0.2" max="20.0"
+                                step="0.1" value="5"></label>
+                        <label>Jump: <input id="slntRandomJump" type="number" min="0.1" max="5.0" step="0.1"
+                                value="4.0"></label>
+                    </div>
+
+                    <div id="slantSmoothRandom" class="mode-control">
+                        <label>Speed: <input id="slntSmoothRandomSpeed" type="number" min="0.1" max="10" step="0.1"
+                                value="8"></label>
+                        <label>Min Duration: <input id="slntSmoothRandomMinDuration" type="number" min="0.1" max="5.0"
+                                step="0.1" value="2.0"></label>
+                        <label>Max Duration: <input id="slntSmoothRandomMaxDuration" type="number" min="0.2" max="20.0"
+                                step="0.1" value="5.0"></label>
+                        <label>Jump: <input id="slntSmoothRandomJump" type="number" min="0.1" max="5.0" step="0.1"
+                                value="1"></label>
+                    </div>
+                </div>
+
+                <!-- 4. Dark Mode -->
+                <div class="control-section">
+                    <div class="toggle-container">
+                        <label class="toggle-label">
+                            <input type="checkbox" id="darkModeToggle">
+                            <span class="toggle-slider"></span>
+                            <span>Dark Mode</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <video id="weightVideo" style="display:none"></video>
+        </div>
+    </div>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <script src="grid.js"></script>
+</body>
+
+</html>

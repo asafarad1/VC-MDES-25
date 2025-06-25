@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <title>Variable Font Grid (HTML/CSS)</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Recursive:slnt,wght,CASL,CRSV,MONO@-15..0,300..1000,0..1,0..1,0..1&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="container">
+        <div class="grid-wrapper">
+            <div class="grid" id="grid"></div>
+        </div>
+        <div class="right-panel">
+            <div id="controls">
+                <label>Weight: <input id="weight" type="range" min="100" max="900" value="900"></label>
+                <label>Slant: <input id="slnt" type="range" min="-16" max="0" value="0"></label>
+            </div>
+            <div class="file-inputs">
+                <label>Text Input: <input id="fileInput" type="file" accept=".txt"></label>
+                <label>Video Input: <input id="weightVideoInput" type="file" accept="video/*"></label>
+            </div>
+            <div class="bottom-controls">
+                <div class="toggle-container">
+                    <label class="toggle-label">
+                        <input type="checkbox" id="darkModeToggle">
+                        <span class="toggle-slider"></span>
+                        Dark Mode
+                    </label>
+                </div>
+                <button id="exportBtn" type="button">Export PNG</button>
+            </div>
+            <video id="weightVideo" style="display:none"></video>
+        </div>
+    </div>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <script src="grid.js"></script>
+</body>
+
+</html>
