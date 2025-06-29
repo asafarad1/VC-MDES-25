@@ -23,7 +23,7 @@
                 <div class="control-section">
                     <label>Weight: <select id="weightMode">
                             <option value="interactive">Interactive Slider</option>
-                            <option value="motion">Ping-Pong Motion</option>
+                            <option value="motion">Motion</option>
                             <option value="video">Video Input</option>
                         </select></label>
 
@@ -36,6 +36,19 @@
                                 disabled></label>
                         <label>Speed: <input id="weightSpeed" type="number" min="0.1" max="10" step="0.1"
                                 value="1"></label>
+                        <label>Easing: <select id="weightEasing">
+                                <option value="linear">Linear</option>
+                                <option value="easeIn">Ease In</option>
+                                <option value="easeOut">Ease Out</option>
+                                <option value="easeInOut">Ease In/Out</option>
+                            </select></label>
+                        <div class="toggle-container">
+                            <label class="toggle-label">
+                                <input type="checkbox" id="weightPingPongToggle" checked>
+                                <span class="toggle-slider"></span>
+                                <span>Ping-Pong</span>
+                            </label>
+                        </div>
                     </div>
 
                     <div id="weightVideoMode" class="mode-control">
@@ -47,8 +60,9 @@
                 <div class="control-section">
                     <label>Slant: <select id="slantMode">
                             <option value="interactive">Interactive Slider</option>
-                            <option value="motion">Ping-Pong Motion</option>
-                            <option value="toggleRandom">Toggle Random Jump</option>
+                            <option value="motion">Motion</option>
+                            <option value="toggleRandom">Toggle Random</option>
+                            <option value="toggleDelay">Toggle Delay</option>
                             <option value="smoothRandom">Smooth Random Motion</option>
                         </select></label>
 
@@ -61,15 +75,48 @@
                                 disabled></label>
                         <label>Speed: <input id="slntSpeed" type="number" min="0.1" max="10" step="0.1"
                                 value="1"></label>
+                        <label>Easing: <select id="slantEasing">
+                                <option value="linear">Linear</option>
+                                <option value="easeIn">Ease In</option>
+                                <option value="easeOut">Ease Out</option>
+                                <option value="easeInOut">Ease In/Out</option>
+                            </select></label>
+                        <div class="toggle-container">
+                            <label class="toggle-label">
+                                <input type="checkbox" id="slantPingPongToggle" checked>
+                                <span class="toggle-slider"></span>
+                                <span>Ping-Pong</span>
+                            </label>
+                        </div>
                     </div>
 
                     <div id="slantToggleRandom" class="mode-control">
                         <label>Min Duration: <input id="slntToggleRandomMinDuration" type="number" min="0.1" max="5.0"
-                                step="0.1" value="1"></label>
+                                step="0.1" value="2"></label>
                         <label>Max Duration: <input id="slntToggleRandomMaxDuration" type="number" min="0.2" max="20.0"
                                 step="0.1" value="5"></label>
-                        <label>Jump: <input id="slntToggleRandomJump" type="number" min="0.1" max="5.0" step="0.1"
-                                value="4.0"></label>
+                        <label>Transition: <input id="slntToggleRandomTransition" type="number" min="0.1" max="10.0"
+                                step="0.1" value="1">s</label>
+                    </div>
+
+                    <div id="slantToggleDelay" class="mode-control">
+                        <label>Time Gap: <input id="slntToggleDelayTimeGap" type="number" min="0.1" max="5.0" step="0.1"
+                                value="0.5">s</label>
+                        <label>Delay Type: <select id="slntToggleDelayType">
+                                <option value="rowsAscending">Rows Ascending</option>
+                                <option value="rowsDescending">Rows Descending</option>
+                                <option value="cellsAscending">Cells Ascending</option>
+                                <option value="cellsDescending">Cells Descending</option>
+                            </select></label>
+                        <label>Transition: <input id="slntToggleDelayTransition" type="number" min="0.1" max="10.0"
+                                step="0.1" value="1">s</label>
+                        <div class="toggle-container">
+                            <label class="toggle-label">
+                                <input type="checkbox" id="slntToggleDelayResetToggle">
+                                <span class="toggle-slider"></span>
+                                <span>Reset on Full Cycle</span>
+                            </label>
+                        </div>
                     </div>
 
                     <div id="slantSmoothRandom" class="mode-control">
@@ -81,6 +128,12 @@
                                 step="0.1" value="5.0"></label>
                         <label>Jump: <input id="slntSmoothRandomJump" type="number" min="0.1" max="5.0" step="0.1"
                                 value="1"></label>
+                        <label>Easing: <select id="slantSmoothRandomEasing">
+                                <option value="linear">Linear</option>
+                                <option value="easeIn">Ease In</option>
+                                <option value="easeOut">Ease Out</option>
+                                <option value="easeInOut">Ease In/Out</option>
+                            </select></label>
                     </div>
                 </div>
 
