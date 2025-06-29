@@ -2,7 +2,7 @@
 
 // Grid dimensions
 const rows = 45;
-const cols = 60;
+const cols = 59;
 
 // Random slant duration constants
 const DEFAULT_MIN_DURATION = 0.6;
@@ -10,7 +10,7 @@ const DEFAULT_MAX_DURATION = 2.3;
 
 // Motion and animation constants
 const PING_PONG_MIDPOINT = 0.5; // Midpoint for ping-pong animation effects
-const DEFAULT_JUMP_AMOUNT = 0.5; // Default jump amount for random slant motion
+const DEFAULT_JUMP_AMOUNT = 0.5; // Default jump amount for smooth random motion
 const RANDOM_DIRECTION_THRESHOLD = 0.5; // Threshold for random direction assignment (50/50 chance)
 
 let text = "THE QUICK BROWN FOX JUMPS OVER THE LAZY DOG 0123456789".repeat(10);
@@ -19,11 +19,10 @@ let text = "THE QUICK BROWN FOX JUMPS OVER THE LAZY DOG 0123456789".repeat(10);
 let cells = []; // Cached cell references
 let spaceCellIndices = []; // Indices of cells containing spaces
 let nonSpaceCellIndices = []; // Indices of cells that are not spaces
-let spaceCellSet = new Set(); // Set for O(1) space cell lookups
 let lastWeightValue = null; // Track last weight value to avoid unnecessary updates
 let lastSlntValue = null; // Track last slant value to avoid unnecessary updates
 
-// Performance optimization: Mapping for random slant values
+// Performance optimization: Mapping for smooth random slant values
 let randomValueToCellIndex = []; // Maps random array index to actual cell index
 let cellIndexToRandomIndex = new Map(); // Maps cell index to random array index
 
@@ -47,12 +46,12 @@ const slntSlider = document.getElementById('slnt');
 const slntMotionSlider = document.getElementById('slntMotionSlider');
 const slntSpeed = document.getElementById('slntSpeed');
 
-// Random slant controls
-const slntRandomMinDuration = document.getElementById('slntRandomMinDuration');
-const slntRandomMaxDuration = document.getElementById('slntRandomMaxDuration');
-const slntRandomJump = document.getElementById('slntRandomJump');
+// Toggle random slant controls
+const slntToggleRandomMinDuration = document.getElementById('slntToggleRandomMinDuration');
+const slntToggleRandomMaxDuration = document.getElementById('slntToggleRandomMaxDuration');
+const slntToggleRandomJump = document.getElementById('slntToggleRandomJump');
 
-// Smooth Random Jump controls
+// Smooth Random Motion controls
 const slntSmoothRandomSpeed = document.getElementById('slntSmoothRandomSpeed');
 const slntSmoothRandomMinDuration = document.getElementById('slntSmoothRandomMinDuration');
 const slntSmoothRandomMaxDuration = document.getElementById('slntSmoothRandomMaxDuration');
@@ -60,11 +59,6 @@ const slntSmoothRandomJump = document.getElementById('slntSmoothRandomJump');
 
 // Dark mode toggle
 const darkModeToggle = document.getElementById('darkModeToggle');
-
-let weightVideoLoaded = false;
-let frameCounter = 0;
-let frameDirection = 1;
-let totalFrames = 0;
 
 // Slider motion variables
 let weightMotionActive = false;
@@ -74,17 +68,16 @@ let slntMotionDirection = 1;
 let weightMotionTime = 0;
 let slntMotionTime = 0;
 
-// Random slant motion variables
-let slntRandomActive = false;
-let slntRandomTimes = []; // Array to store random times for each character
-let slntRandomValues = []; // Array to store current slant values for each character
-let slntRandomDirections = []; // Array to store direction for each character (1 or -1)
+// Toggle random slant motion variables
+let slntToggleRandomActive = false;
+let slntToggleRandomTimes = []; // Array to store random times for each character
+let slntToggleRandomValues = []; // Array to store current slant values for each character
 
-// Smooth Random Jump motion variables
+// Smooth Random Motion variables
 let slntSmoothRandomActive = false;
 let slntSmoothRandomTimes = []; // Array to store random times for each character
 let slntSmoothRandomValues = []; // Array to store current slant values for each character
-let slntSmoothRandomDirections = []; // Array to store direction for each character (1 or -1)
+let slntSmoothRandomDirections = []; // Array to store current directions for each character
 
 // Canvas for sampling video pixels (hidden)
 const sampleCanvas = document.createElement('canvas');
@@ -104,16 +97,17 @@ let frameCount = 0;
 // Motion timing variable
 let lastMotionTime = performance.now();
 
+let weightVideoLoaded = false;
+
 // Throttle function to limit frame rate
 function throttle(callback, limit) {
   let waiting = false;
+  let lastCall = 0;
   return function () {
-    if (!waiting) {
+    const now = performance.now();
+    if (now - lastCall >= limit) {
       callback.apply(this, arguments);
-      waiting = true;
-      setTimeout(() => {
-        waiting = false;
-      }, limit);
+      lastCall = now;
     }
   }
 }
@@ -216,41 +210,41 @@ function switchSlantMode() {
   // Hide all slant mode controls
   document.getElementById('slantInteractive').classList.remove('active');
   document.getElementById('slantMotion').classList.remove('active');
-  document.getElementById('slantRandom').classList.remove('active');
+  document.getElementById('slantToggleRandom').classList.remove('active');
   document.getElementById('slantSmoothRandom').classList.remove('active');
 
-  // Remove slant-random-mode class from grid
-  grid.classList.remove('slant-random-mode');
+  // Remove slant-toggleRandom-mode class from grid
+  grid.classList.remove('slant-toggleRandom-mode');
 
   // Show and configure the selected mode
   switch (mode) {
     case 'interactive':
       document.getElementById('slantInteractive').classList.add('active');
       slntMotionActive = false;
-      slntRandomActive = false;
+      slntToggleRandomActive = false;
       slntSmoothRandomActive = false;
       break;
     case 'motion':
       document.getElementById('slantMotion').classList.add('active');
       slntMotionActive = true;
-      slntRandomActive = false;
+      slntToggleRandomActive = false;
       slntSmoothRandomActive = false;
       slntMotionTime = 0;
       slntMotionDirection = 1;
       break;
-    case 'random':
-      document.getElementById('slantRandom').classList.add('active');
+    case 'toggleRandom':
+      document.getElementById('slantToggleRandom').classList.add('active');
       slntMotionActive = false;
-      slntRandomActive = true;
+      slntToggleRandomActive = true;
       slntSmoothRandomActive = false;
-      // Add slant-random-mode class to grid
-      grid.classList.add('slant-random-mode');
-      initializeSlntRandom();
+      // Add slant-toggleRandom-mode class to grid
+      grid.classList.add('slant-toggleRandom-mode');
+      initializeSlntToggleRandom();
       break;
     case 'smoothRandom':
       document.getElementById('slantSmoothRandom').classList.add('active');
       slntMotionActive = false;
-      slntRandomActive = false;
+      slntToggleRandomActive = false;
       slntSmoothRandomActive = true;
       initializeSlntSmoothRandom();
       break;
@@ -265,6 +259,9 @@ function fillGrid() {
   spaceCellIndices = [];
   nonSpaceCellIndices = [];
 
+  // Use DocumentFragment for better performance
+  const fragment = document.createDocumentFragment();
+
   let idx = 0;
   for (let r = 0; r < rows; r++) {
     for (let c = 0; c < cols; c++) {
@@ -272,8 +269,7 @@ function fillGrid() {
       span.className = 'cell';
       const char = text[idx % text.length];
       span.textContent = char;
-      // span.style.transform = 'translateZ(0)'; // Force GPU acceleration
-      grid.appendChild(span);
+      fragment.appendChild(span);
 
       // Cache cell reference
       cells.push(span);
@@ -281,7 +277,6 @@ function fillGrid() {
       // Track space vs non-space cells for performance
       if (char === ' ') {
         spaceCellIndices.push(idx);
-        spaceCellSet.add(idx);
       } else {
         nonSpaceCellIndices.push(idx);
       }
@@ -290,13 +285,16 @@ function fillGrid() {
     }
   }
 
+  // Append all cells at once
+  grid.appendChild(fragment);
+
   // Reset last values to force initial update
   lastWeightValue = null;
   lastSlntValue = null;
 
-  // Initialize random slant system if it's active
-  if (slntRandomActive) {
-    initializeSlntRandom();
+  // Initialize toggle random slant system if it's active
+  if (slntToggleRandomActive) {
+    initializeSlntToggleRandom();
   }
 
   // Initialize smooth random slant system if it's active
@@ -310,7 +308,15 @@ fileInput.addEventListener('change', e => {
   if (!file) return;
   const reader = new FileReader();
   reader.onload = function (evt) {
-    text = evt.target.result.replace(/\r?\n/g, ' ');
+    // Completely remove line breaks - don't replace with spaces
+    text = evt.target.result
+      .replace(/<br\s*\/?>/gi, '') // Remove <br> tags completely
+      .replace(/\r?\n/g, '') // Remove line breaks completely
+      .replace(/\r/g, '') // Remove carriage returns completely
+      .replace(/\t/g, '') // Remove tabs completely
+      .replace(/\f/g, '') // Remove form feeds completely
+      .replace(/\v/g, ''); // Remove vertical tabs completely
+
     fillGrid();
   };
   reader.readAsText(file);
@@ -362,7 +368,7 @@ function updateGrid() {
     const pingPongProgress = progress <= PING_PONG_MIDPOINT ? progress * 2 : (1 - progress) * 2;
 
     // Map to slider range
-    weightValue = Math.round(map(pingPongProgress, 0, 1, 100, 900));
+    weightValue = (map(pingPongProgress, 0, 1, 100, 900) + 0.5) | 0;
     weightMotionSlider.value = weightValue;
   }
 
@@ -384,42 +390,20 @@ function updateGrid() {
     slntMotionSlider.value = slntValue;
   }
 
-  // Handle random slant motion
-  if (currentSlantMode === 'random' && slntRandomActive) {
-    const jumpAmount = parseFloat(slntRandomJump.value) || DEFAULT_JUMP_AMOUNT;
-
+  // Handle toggle random slant motion
+  if (currentSlantMode === 'toggleRandom' && slntToggleRandomActive) {
     // Process all cells (original behavior)
-    for (let i = 0; i < slntRandomTimes.length; i++) {
-      slntRandomTimes[i] -= deltaTime;
+    for (let i = 0; i < slntToggleRandomTimes.length; i++) {
+      slntToggleRandomTimes[i] -= deltaTime;
 
-      if (slntRandomTimes[i] <= 0) {
-        // Time to jump - move the slant value in the current direction
-        const currentSlnt = slntRandomValues[i];
-        const slntRange = 16; // -16 to 0
-        const jumpInRange = (jumpAmount / 2) * slntRange; // Convert seconds to slant range
-
-        // Calculate new value
-        let newSlnt = currentSlnt + (slntRandomDirections[i] * jumpInRange);
-
-        // Bounce back if we hit the boundaries (original logic)
-        if (newSlnt <= -16) {
-          // Bounce back by the excess amount
-          const excess = Math.abs(newSlnt + 16);
-          newSlnt = -16 + excess;
-          slntRandomDirections[i] = 1; // Reverse direction
-        } else if (newSlnt >= 0) {
-          // Bounce back by the excess amount
-          const excess = newSlnt;
-          newSlnt = -excess;
-          slntRandomDirections[i] = -1; // Reverse direction
-        }
-
-        slntRandomValues[i] = newSlnt;
+      if (slntToggleRandomTimes[i] <= 0) {
+        // Time to jump - simply toggle between -16 and 0
+        slntToggleRandomValues[i] = slntToggleRandomValues[i] === -16 ? 0 : -16;
 
         // Reset timer with new random duration
-        const minDuration = parseFloat(slntRandomMinDuration.value) || DEFAULT_MIN_DURATION;
-        const maxDuration = parseFloat(slntRandomMaxDuration.value) || DEFAULT_MAX_DURATION;
-        slntRandomTimes[i] = Math.random() * (maxDuration - minDuration) + minDuration;
+        const minDuration = parseFloat(slntToggleRandomMinDuration.value) || DEFAULT_MIN_DURATION;
+        const maxDuration = parseFloat(slntToggleRandomMaxDuration.value) || DEFAULT_MAX_DURATION;
+        slntToggleRandomTimes[i] = Math.random() * (maxDuration - minDuration) + minDuration;
       }
     }
   }
@@ -497,15 +481,15 @@ function updateGrid() {
         const cell = cells[cellIndex];
 
         // Skip space cells - they don't need video processing
-        if (spaceCellSet.has(cellIndex)) {
+        if (spaceCellIndices.includes(cellIndex)) {
           continue;
         }
 
         const pixelIndex = (r * cols + c) * 4;
         const val = pixels[pixelIndex];
-        const weight = Math.round(map(val, 0, 255, 1000, 300));
-        const slnt = currentSlantMode === 'random' && slntRandomValues[cellIndex] !== undefined ?
-          slntRandomValues[cellIndex] :
+        const weight = (map(val, 0, 255, 1000, 300) + 0.5) | 0;
+        const slnt = currentSlantMode === 'toggleRandom' && slntToggleRandomValues[cellIndex] !== undefined ?
+          slntToggleRandomValues[cellIndex] :
           currentSlantMode === 'smoothRandom' && cellIndexToRandomIndex.has(cellIndex) ?
             slntSmoothRandomValues[cellIndexToRandomIndex.get(cellIndex)] : slntValue;
         updateCellStyle(cell, weight, slnt);
@@ -515,47 +499,45 @@ function updateGrid() {
   } else {
     // If no video or not in video mode, use slider values for all cells
     // Performance optimization: Only update if values have changed
-    // BUT: Always update in random modes since values change internally
+    // BUT: Always update in toggleRandom modes since values change internally
     if (weightValue === lastWeightValue && slntValue === lastSlntValue &&
-      currentSlantMode !== 'random' && currentSlantMode !== 'smoothRandom') {
-      return; // Skip update if nothing has changed (except in random modes)
+      currentSlantMode !== 'toggleRandom' && currentSlantMode !== 'smoothRandom') {
+      return; // Skip update if nothing has changed (except in toggleRandom modes)
     }
 
     // Batch update cells based on mode
-    requestAnimationFrame(() => {
-      if (currentSlantMode === 'random') {
-        // For random mode, process all cells (original behavior)
-        for (let i = 0; i < cells.length; i++) {
-          const cell = cells[i];
-          const cellText = cell.textContent;
+    if (currentSlantMode === 'toggleRandom') {
+      // For toggleRandom mode, process all cells (original behavior)
+      for (let i = 0; i < cells.length; i++) {
+        const cell = cells[i];
+        const cellText = cell.textContent;
 
-          // Skip spaces for performance improvement
-          if (cellText === ' ') {
-            continue;
-          }
-
-          // Use random slant value if random mode is active, otherwise use slider value
-          const slnt = slntRandomValues[i] !== undefined ? slntRandomValues[i] : slntValue;
-
-          updateCellStyle(cell, weightValue, slnt);
+        // Skip spaces for performance improvement
+        if (cellText === ' ') {
+          continue;
         }
-      } else {
-        // For other modes, process only non-space cells (optimized)
-        for (let i = 0; i < nonSpaceCellIndices.length; i++) {
-          const cellIndex = nonSpaceCellIndices[i];
-          const cell = cells[cellIndex];
 
-          // Use random slant value if smooth random mode is active, otherwise use slider value
-          const slnt = currentSlantMode === 'smoothRandom' && cellIndexToRandomIndex.has(cellIndex) ?
-            slntSmoothRandomValues[cellIndexToRandomIndex.get(cellIndex)] : slntValue;
+        // Use toggle random slant value if toggleRandom mode is active, otherwise use slider value
+        const slnt = slntToggleRandomValues[i] !== undefined ? slntToggleRandomValues[i] : slntValue;
 
-          updateCellStyle(cell, weightValue, slnt);
-        }
+        updateCellStyle(cell, weightValue, slnt);
       }
-    });
+    } else {
+      // For other modes, process only non-space cells (optimized)
+      for (let i = 0; i < nonSpaceCellIndices.length; i++) {
+        const cellIndex = nonSpaceCellIndices[i];
+        const cell = cells[cellIndex];
 
-    // Update last values (but only for non-random modes to allow continuous updates)
-    if (currentSlantMode !== 'random' && currentSlantMode !== 'smoothRandom') {
+        // Use toggle random slant value if smooth random mode is active, otherwise use slider value
+        const slnt = currentSlantMode === 'smoothRandom' && cellIndexToRandomIndex.has(cellIndex) ?
+          slntSmoothRandomValues[cellIndexToRandomIndex.get(cellIndex)] : slntValue;
+
+        updateCellStyle(cell, weightValue, slnt);
+      }
+    }
+
+    // Update last values (but only for non-toggleRandom modes to allow continuous updates)
+    if (currentSlantMode !== 'toggleRandom' && currentSlantMode !== 'smoothRandom') {
       lastWeightValue = weightValue;
       lastSlntValue = slntValue;
     }
@@ -566,23 +548,21 @@ function map(x, in_min, in_max, out_min, out_max) {
   return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
 }
 
-// Initialize random slant system
-function initializeSlntRandom() {
-  slntRandomTimes = [];
-  slntRandomValues = [];
-  slntRandomDirections = [];
+// Initialize toggle random slant system
+function initializeSlntToggleRandom() {
+  slntToggleRandomTimes = [];
+  slntToggleRandomValues = [];
 
   // Initialize for all cells (original behavior)
   for (let i = 0; i < totalCells; i++) {
     // Random time between min and max duration
-    const minDuration = parseFloat(slntRandomMinDuration.value) || DEFAULT_MIN_DURATION;
-    const maxDuration = parseFloat(slntRandomMaxDuration.value) || DEFAULT_MAX_DURATION;
-    slntRandomTimes.push(Math.random() * (maxDuration - minDuration) + minDuration);
-    slntRandomValues.push(parseFloat(slntSlider.value) || 0);
-    slntRandomDirections.push(Math.random() < RANDOM_DIRECTION_THRESHOLD ? 1 : -1);
+    const minDuration = parseFloat(slntToggleRandomMinDuration.value) || DEFAULT_MIN_DURATION;
+    const maxDuration = parseFloat(slntToggleRandomMaxDuration.value) || DEFAULT_MAX_DURATION;
+    slntToggleRandomTimes.push(Math.random() * (maxDuration - minDuration) + minDuration);
+    slntToggleRandomValues.push(0); // Start at 0, will toggle to -16 on first jump
   }
 
-  console.log(`Random slant initialized: ${slntRandomTimes.length} cells`);
+  console.log(`Toggle random slant initialized: ${slntToggleRandomTimes.length} cells`);
 }
 
 // Initialize smooth random slant system
@@ -596,7 +576,7 @@ function initializeSlntSmoothRandom() {
   // Only initialize for non-space cells
   for (let i = 0; i < totalCells; i++) {
     // Skip space cells - don't initialize them at all
-    if (spaceCellSet.has(i)) {
+    if (spaceCellIndices.includes(i)) {
       continue;
     }
 

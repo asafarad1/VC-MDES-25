@@ -2,7 +2,7 @@
 import re
 import os
 
-def transform_ascii_file(input_filename='ref/ascii/art.txt'):
+def transform_ascii_file(input_filename='ref/ascii/VC6-bg0.txt'):
     # Extract base name and index from input filename
     base_path = os.path.dirname(input_filename)
     filename = os.path.basename(input_filename)
@@ -27,7 +27,7 @@ def transform_ascii_file(input_filename='ref/ascii/art.txt'):
         lines = f.readlines()
     
     # Pattern characters
-    pattern_chars = ['.', '·']
+    pattern_chars = ['g', ' ']
     
     transformed_lines = []
     for line_num, line in enumerate(lines):
@@ -39,7 +39,7 @@ def transform_ascii_file(input_filename='ref/ascii/art.txt'):
         pattern_index = line_num % 2  # Start with '.' or '·' based on line number
         
         for char in line:
-            if char in [' ', '.', '·']:
+            if char in [' ', 'g', ' ']:
                 # Replace space, dot, or middle dot with pattern character
                 new_line += pattern_chars[pattern_index % 2]
             else:
