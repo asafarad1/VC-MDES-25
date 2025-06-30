@@ -52,13 +52,13 @@ body.dark-mode {
 .cell {
   font-size: 13px;
   text-align: center;
-  transition: color 0.3s ease, font-size 0.4s ease;
+  transition: color 0.3s ease;
+  user-select: none;
   color: #000;
   display: flex;
   align-items: center;
   justify-content: center;
   white-space: pre;
-  overflow: auto;
 }
 
 /* When slant toggle random mode is active, apply the specific transition */
