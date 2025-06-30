@@ -73,6 +73,10 @@ const slntSmoothRandomEasing = document.getElementById('slntSmoothRandomEasing')
 // Dark mode toggle
 const darkModeToggle = document.getElementById('darkModeToggle');
 
+// Font size slider
+const fontSizeSlider = document.getElementById('fontSize');
+const fontSizeValue = document.getElementById('fontSizeValue');
+
 // Slider motion variables
 let weightMotionActive = false;
 let slntMotionActive = false;
@@ -351,6 +355,9 @@ function fillGrid() {
   if (slntSmoothRandomActive) {
     initializeSlntSmoothRandom();
   }
+
+  // Initialize font size
+  updateFontSize();
 }
 
 fileInput.addEventListener('change', e => {
@@ -810,6 +817,9 @@ slantMode.addEventListener('change', switchSlantMode);
   input.addEventListener('input', updateGrid);
 });
 
+// Font size slider event listener
+fontSizeSlider.addEventListener('input', updateFontSize);
+
 // Event listener for transition time
 slntToggleRandomTransition.addEventListener('input', updateTransitionTime);
 
@@ -839,6 +849,17 @@ function updateTransitionTime() {
 function updateToggleDelayTransitionTime() {
   const transitionTime = slntToggleDelayTransition.value;
   grid.style.setProperty('--slant-toggle-transition', transitionTime + 's');
+}
+
+// Function to update font size
+function updateFontSize() {
+  const fontSize = fontSizeSlider.value;
+  fontSizeValue.textContent = fontSize + 'px';
+
+  // Update font size for all cells
+  for (let i = 0; i < cells.length; i++) {
+    cells[i].style.fontSize = fontSize + 'px';
+  }
 }
 
 // Dark mode toggle functionality
