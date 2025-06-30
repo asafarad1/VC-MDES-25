@@ -26,6 +26,29 @@ let lastSlntValue = null; // Track last slant value to avoid unnecessary updates
 let randomValueToCellIndex = []; // Maps random array index to actual cell index
 let cellIndexToRandomIndex = new Map(); // Maps cell index to random array index
 
+// Performance optimization: Track smooth random changes to avoid unnecessary DOM updates
+let slntSmoothRandomLastValues = []; // Track last values to detect changes
+let slntSmoothRandomChangeThreshold = 0.1; // Minimum change threshold to trigger update
+let slntSmoothRandomDirtyCells = new Set(); // Track which cells need updates
+
+// Performance monitoring
+let slntSmoothRandomUpdateCount = 0; // Count of cells updated per frame
+let slntSmoothRandomLastUpdateCount = 0; // Last frame's update count
+
+// Adaptive change threshold based on performance
+function updateChangeThreshold() {
+  const fps = frameCount;
+  if (fps >= 30) {
+    slntSmoothRandomChangeThreshold = 0.05; // More responsive when performance is good
+  } else if (fps >= 25) {
+    slntSmoothRandomChangeThreshold = 0.1; // Default threshold
+  } else if (fps >= 20) {
+    slntSmoothRandomChangeThreshold = 0.15; // Less responsive
+  } else {
+    slntSmoothRandomChangeThreshold = 0.2; // Much less responsive when performance is poor
+  }
+}
+
 // Restore grid div
 const grid = document.getElementById('grid');
 const fileInput = document.getElementById('fileInput');
@@ -130,6 +153,21 @@ function throttle(callback, limit) {
       lastCall = now;
     }
   }
+}
+
+// Performance-based throttling for smooth random mode
+function getThrottleLimit() {
+  const currentSlantMode = slantMode.value;
+  if (currentSlantMode === 'smoothRandom') {
+    // Use adaptive throttling based on performance
+    const fps = frameCount;
+    if (fps < 25) {
+      return 1000 / 20; // Reduce to 20fps if performance is poor
+    } else if (fps < 30) {
+      return 1000 / 25; // Reduce to 25fps if performance is moderate
+    }
+  }
+  return 1000 / 30; // Default 30fps
 }
 
 // Pre-calculate common values
@@ -549,6 +587,17 @@ function updateGrid() {
       initializeSlntSmoothRandom();
     }
 
+    // Performance optimization: Pre-calculate constants
+    const slntRange = 16; // -16 to 0
+    const jumpInRange = (jumpAmount / 2) * slntRange;
+    const moveAmount = deltaTime * speed * 2;
+    const minDuration = parseFloat(slntSmoothRandomMinDuration.value) || DEFAULT_MIN_DURATION;
+    const maxDuration = parseFloat(slntSmoothRandomMaxDuration.value) || DEFAULT_MAX_DURATION;
+    const durationRange = maxDuration - minDuration;
+
+    // Clear dirty cells set for this frame
+    slntSmoothRandomDirtyCells.clear();
+
     // Process only initialized cells (non-space cells)
     for (let i = 0; i < slntSmoothRandomTimes.length; i++) {
       slntSmoothRandomTimes[i] -= deltaTime;
@@ -556,46 +605,42 @@ function updateGrid() {
       if (slntSmoothRandomTimes[i] <= 0) {
         // Time to jump - add jump amount in current direction
         const currentSlnt = slntSmoothRandomValues[i];
-        const slntRange = 16; // -16 to 0
-        const jumpInRange = (jumpAmount / 2) * slntRange; // Convert seconds to slant range
-
-        // Calculate raw new value before clamping
         const rawNewSlnt = currentSlnt + (slntSmoothRandomDirections[i] * jumpInRange);
 
         // Calculate new value with efficient boundary clamping
         const newSlnt = clampSlantWithBounce(rawNewSlnt);
 
-        // Update direction based on boundary crossing
-        const boundaryCrossed = detectBoundaryCrossing(currentSlnt, rawNewSlnt);
-        if (boundaryCrossed) {
+        // Update direction based on boundary crossing (only if we actually crossed)
+        if (rawNewSlnt < -16 || rawNewSlnt > 0) {
           slntSmoothRandomDirections[i] *= -1; // Reverse direction
         }
 
         slntSmoothRandomValues[i] = newSlnt;
 
+        // Mark this cell as dirty for update
+        const cellIndex = randomValueToCellIndex[i];
+        slntSmoothRandomDirtyCells.add(cellIndex);
+
         // Reset timer with new random duration
-        const minDuration = parseFloat(slntSmoothRandomMinDuration.value) || DEFAULT_MIN_DURATION;
-        const maxDuration = parseFloat(slntSmoothRandomMaxDuration.value) || DEFAULT_MAX_DURATION;
-        slntSmoothRandomTimes[i] = Math.random() * (maxDuration - minDuration) + minDuration;
+        slntSmoothRandomTimes[i] = Math.random() * durationRange + minDuration;
       } else {
         // Continuously move towards the edge in the current direction
         const currentSlnt = slntSmoothRandomValues[i];
-        const slntRange = 16;
-        const moveAmount = deltaTime * speed * 2; // Speed of continuous movement
-
-        // Calculate raw new value before clamping
         const rawNewSlnt = currentSlnt + (slntSmoothRandomDirections[i] * moveAmount);
 
         // Calculate new value with efficient boundary clamping
         const newSlnt = clampSlantWithBounce(rawNewSlnt);
 
-        // Update direction based on boundary crossing
-        const boundaryCrossed = detectBoundaryCrossing(currentSlnt, rawNewSlnt);
-        if (boundaryCrossed) {
+        // Update direction based on boundary crossing (only if we actually crossed)
+        if (rawNewSlnt < -16 || rawNewSlnt > 0) {
           slntSmoothRandomDirections[i] *= -1; // Reverse direction
         }
 
         slntSmoothRandomValues[i] = newSlnt;
+
+        // Mark this cell as dirty for update
+        const cellIndex = randomValueToCellIndex[i];
+        slntSmoothRandomDirtyCells.add(cellIndex);
       }
     }
   }
@@ -678,15 +723,22 @@ function updateGrid() {
       }
     } else {
       // For other modes, process only non-space cells (optimized)
-      for (let i = 0; i < nonSpaceCellIndices.length; i++) {
-        const cellIndex = nonSpaceCellIndices[i];
-        const cell = cells[cellIndex];
-
-        // Use toggle random slant value if smooth random mode is active, otherwise use slider value
-        const slnt = currentSlantMode === 'smoothRandom' && cellIndexToRandomIndex.has(cellIndex) ?
-          slntSmoothRandomValues[cellIndexToRandomIndex.get(cellIndex)] : slntValue;
-
-        updateCellStyle(cell, weightValue, slnt);
+      if (currentSlantMode === 'smoothRandom') {
+        // For smooth random mode, only update dirty cells
+        slntSmoothRandomUpdateCount = slntSmoothRandomDirtyCells.size;
+        for (const cellIndex of slntSmoothRandomDirtyCells) {
+          const cell = cells[cellIndex];
+          const randomIndex = cellIndexToRandomIndex.get(cellIndex);
+          const slnt = slntSmoothRandomValues[randomIndex];
+          updateCellStyle(cell, weightValue, slnt);
+        }
+      } else {
+        // For other modes, process only non-space cells (optimized)
+        for (let i = 0; i < nonSpaceCellIndices.length; i++) {
+          const cellIndex = nonSpaceCellIndices[i];
+          const cell = cells[cellIndex];
+          updateCellStyle(cell, weightValue, slntValue);
+        }
       }
     }
 
@@ -695,6 +747,13 @@ function updateGrid() {
       lastWeightValue = weightValue;
       lastSlntValue = slntValue;
     }
+  }
+
+  // Log smooth random performance metrics when performance is poor
+  if (slantMode.value === 'smoothRandom' && slntSmoothRandomActive) {
+    console.log('Smooth Random - Updates per frame:', slntSmoothRandomUpdateCount,
+      'Dirty cells:', slntSmoothRandomDirtyCells.size,
+      'Change threshold:', slntSmoothRandomChangeThreshold);
   }
 }
 
@@ -775,6 +834,8 @@ function initializeSlntSmoothRandom() {
   slntSmoothRandomTimes = [];
   slntSmoothRandomValues = [];
   slntSmoothRandomDirections = [];
+  slntSmoothRandomLastValues = []; // Initialize last values tracking
+  slntSmoothRandomDirtyCells.clear(); // Clear dirty cells
   randomValueToCellIndex = [];
   cellIndexToRandomIndex.clear();
 
@@ -789,7 +850,9 @@ function initializeSlntSmoothRandom() {
     const minDuration = parseFloat(slntSmoothRandomMinDuration.value) || DEFAULT_MIN_DURATION;
     const maxDuration = parseFloat(slntSmoothRandomMaxDuration.value) || DEFAULT_MAX_DURATION;
     slntSmoothRandomTimes.push(Math.random() * (maxDuration - minDuration) + minDuration);
-    slntSmoothRandomValues.push(parseFloat(slntSlider.value) || 0);
+    const initialSlnt = parseFloat(slntSlider.value) || 0;
+    slntSmoothRandomValues.push(initialSlnt);
+    slntSmoothRandomLastValues.push(initialSlnt); // Initialize last values
     slntSmoothRandomDirections.push(Math.random() < RANDOM_DIRECTION_THRESHOLD ? 1 : -1);
 
     // Build mappings
@@ -851,21 +914,34 @@ darkModeToggle.addEventListener('change', () => {
 });
 
 // Throttle the animation to 30fps
-const throttledUpdate = throttle(() => {
-  updateGrid();
-}, 1000 / 30);
+let currentThrottleLimit = 1000 / 30;
+let lastUpdateTime = 0;
 
 function animate() {
-  throttledUpdate();
+  const now = performance.now();
+
+  // Use adaptive throttling for smooth random mode
+  const newThrottleLimit = getThrottleLimit();
+  if (newThrottleLimit !== currentThrottleLimit) {
+    currentThrottleLimit = newThrottleLimit;
+    lastUpdateTime = 0; // Reset to allow immediate update with new limit
+  }
+
+  if (now - lastUpdateTime >= currentThrottleLimit) {
+    updateGrid();
+    lastUpdateTime = now;
+  }
+
   requestAnimationFrame(animate);
 
   // FPS counter - only log if FPS is below 30
   frameCount++;
-  const now = performance.now();
   if (now - lastFpsTime >= 1000) {
     const fps = frameCount;
     if (fps < 30) {
       console.log('FPS:', fps);
+      // Update adaptive thresholds based on performance
+      updateChangeThreshold();
     }
     frameCount = 0;
     lastFpsTime = now;
