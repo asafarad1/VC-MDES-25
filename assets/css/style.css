@@ -225,3 +225,25 @@ body.dark-mode {
 .toggle-label span:last-child {
   white-space: nowrap;
 }
+
+/* Hide wave gap field when reset toggle is checked */
+.wave-gap-hidden {
+  display: none;
+}
+
+/* Disable wave gap field when reset toggle is checked */
+.wave-gap-disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.wave-gap-disabled input {
+  background-color: #f0f0f0;
+  color: #999;
+  cursor: not-allowed;
+}
+
+.dark-mode .wave-gap-disabled input {
+  background-color: #333;
+  color: #666;
+}

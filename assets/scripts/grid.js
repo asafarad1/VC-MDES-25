@@ -82,6 +82,7 @@ const slntToggleRandomTransition = document.getElementById('slntToggleRandomTran
 
 // Toggle delay slant controls
 const slntToggleDelayTimeGap = document.getElementById('slntToggleDelayTimeGap');
+const slntToggleDelayWaveGap = document.getElementById('slntToggleDelayWaveGap');
 const slntToggleDelayType = document.getElementById('slntToggleDelayType');
 const slntToggleDelayTransition = document.getElementById('slntToggleDelayTransition');
 const slntToggleDelayResetToggle = document.getElementById('slntToggleDelayResetToggle');
@@ -115,6 +116,10 @@ let slntToggleDelayValues = []; // Array to store current slant values for each 
 let slntToggleDelayOrder = []; // Array to store the order of cell activation
 let slntToggleDelayCurrentIndex = 0; // Current index in the activation order
 let slntToggleDelayTimer = 0; // Timer for the current delay
+
+// New variables for overlapping waves
+let slntToggleDelayWaves = []; // Array to track multiple waves
+let slntToggleDelayWaveTimer = 0; // Timer for starting new waves
 
 // Smooth Random Motion variables
 let slntSmoothRandomActive = false;
@@ -321,6 +326,8 @@ function switchSlantMode() {
       initializeSlntToggleDelay();
       // Initialize transition time
       updateToggleDelayTransitionTime();
+      // Set initial wave gap visibility
+      toggleWaveGapVisibility();
       break;
     case 'smoothRandom':
       document.getElementById('slantSmoothRandom').classList.add('active');
@@ -522,57 +529,83 @@ function updateGrid() {
 
   // Handle toggle delay slant motion
   if (currentSlantMode === 'toggleDelay' && slntToggleDelayActive) {
-    const timeGap = parseFloat(slntToggleDelayTimeGap.value) || 0.5;
+    const timeGap = parseFloat(slntToggleDelayTimeGap.value) || 0.1;
+    const waveGap = parseFloat(slntToggleDelayWaveGap.value) || 4.0;
+    const transitionTime = parseFloat(slntToggleDelayTransition.value) || 0.7;
 
-    slntToggleDelayTimer -= deltaTime;
+    if (slntToggleDelayResetToggle.checked) {
+      // Reset mode: sequential behavior like before
+      slntToggleDelayTimer -= deltaTime;
 
-    if (slntToggleDelayTimer <= 0) {
-      // Time to activate the next cell/row in the sequence
-      if (slntToggleDelayCurrentIndex < slntToggleDelayOrder.length) {
-        const cellIndex = slntToggleDelayOrder[slntToggleDelayCurrentIndex];
+      if (slntToggleDelayTimer <= 0) {
+        // Time to activate the next cell/row in the sequence
+        if (slntToggleDelayCurrentIndex < slntToggleDelayOrder.length) {
+          const cellIndex = slntToggleDelayOrder[slntToggleDelayCurrentIndex];
 
-        // Check if this is a row-based mode
-        const delayType = slntToggleDelayType.value;
-        if (delayType === 'rowsAscending' || delayType === 'rowsDescending') {
-          // For row modes, activate the entire row at once
-          const rowIndex = Math.floor(cellIndex / cols);
-          const startCellIndex = rowIndex * cols;
-          const endCellIndex = startCellIndex + cols;
+          // Check if this is a row-based mode
+          const delayType = slntToggleDelayType.value;
+          if (delayType === 'rowsAscending' || delayType === 'rowsDescending') {
+            // For row modes, activate the entire row at once
+            const rowIndex = Math.floor(cellIndex / cols);
+            const startCellIndex = rowIndex * cols;
+            const endCellIndex = startCellIndex + cols;
 
-          // Toggle all cells in this row
-          for (let i = startCellIndex; i < endCellIndex; i++) {
-            slntToggleDelayValues[i] = slntToggleDelayValues[i] === -16 ? 0 : -16;
+            // Toggle all cells in this row
+            for (let i = startCellIndex; i < endCellIndex; i++) {
+              slntToggleDelayValues[i] = slntToggleDelayValues[i] === -16 ? 0 : -16;
+            }
+          } else {
+            // For cell modes, activate just this cell
+            slntToggleDelayValues[cellIndex] = slntToggleDelayValues[cellIndex] === -16 ? 0 : -16;
           }
 
-          // Move to the next row (advance by 1 since order array has one entry per row)
           slntToggleDelayCurrentIndex++;
-        } else {
-          // For cell modes, activate just this cell
-          slntToggleDelayValues[cellIndex] = slntToggleDelayValues[cellIndex] === -16 ? 0 : -16;
-          slntToggleDelayCurrentIndex++;
-        }
 
-        if (slntToggleDelayCurrentIndex % 10 === 0) {
-          console.log(`Toggle delay: activated ${slntToggleDelayCurrentIndex} items`);
-        }
-      } else {
-        // Check if reset on full cycle is enabled
-        if (slntToggleDelayResetToggle.checked) {
-          // Reset all cells at once and start new cycle
+          // Check if this was the last item
+          if (slntToggleDelayCurrentIndex >= slntToggleDelayOrder.length) {
+            // Last item activated - wait for transition to complete before resetting
+            slntToggleDelayTimer = transitionTime;
+            console.log('Toggle delay: reset mode - last item activated, waiting for transition');
+          } else {
+            slntToggleDelayTimer = timeGap; // Set timer for next activation
+          }
+        } else {
+          // Transition completed - reset all cells and start over
           for (let i = 0; i < slntToggleDelayValues.length; i++) {
-            slntToggleDelayValues[i] = slntToggleDelayValues[i] === -16 ? 0 : -16;
+            slntToggleDelayValues[i] = 0; // Reset to default state
           }
           slntToggleDelayCurrentIndex = 0;
-          console.log('Toggle delay: reset all cells and starting new cycle');
-        } else {
-          // Reset the sequence - start over from the beginning
-          slntToggleDelayCurrentIndex = 0;
-          console.log('Toggle delay: starting new cycle');
+          slntToggleDelayTimer = transitionTime + timeGap; // Wait for transition + delay before starting first item of new cycle
+          console.log('Toggle delay: reset mode - transition completed, resetting all cells, waiting transition + delay before new cycle');
         }
       }
+    } else {
+      // Wave gap mode: overlapping waves behavior
+      slntToggleDelayWaveTimer -= deltaTime;
 
-      // Reset timer for next activation
-      slntToggleDelayTimer = timeGap;
+      // Start new wave if timer expired
+      if (slntToggleDelayWaveTimer <= 0) {
+        const delayType = slntToggleDelayType.value;
+        const newWave = new ToggleDelayWave(performance.now(), delayType, slntToggleDelayOrder);
+        slntToggleDelayWaves.push(newWave);
+
+        // Set timer for next wave
+        slntToggleDelayWaveTimer = waveGap;
+
+        console.log('Toggle delay: started new wave, total waves:', slntToggleDelayWaves.length);
+      }
+
+      // Update all active waves
+      for (let i = slntToggleDelayWaves.length - 1; i >= 0; i--) {
+        const wave = slntToggleDelayWaves[i];
+        wave.update(deltaTime, timeGap);
+
+        // Remove completed waves
+        if (!wave.active) {
+          slntToggleDelayWaves.splice(i, 1);
+          console.log('Toggle delay: wave completed, remaining waves:', slntToggleDelayWaves.length);
+        }
+      }
     }
   }
 
@@ -782,10 +815,12 @@ function initializeSlntToggleRandom() {
 function initializeSlntToggleDelay() {
   slntToggleDelayValues = [];
   slntToggleDelayOrder = [];
-  slntToggleDelayCurrentIndex = 0;
-  slntToggleDelayTimer = parseFloat(slntToggleDelayTimeGap.value) || 0.5;
+  slntToggleDelayWaves = []; // Clear existing waves
+  slntToggleDelayCurrentIndex = 0; // Reset current index
+  slntToggleDelayTimer = 0; // Start immediately for reset mode
+  slntToggleDelayWaveTimer = 0; // Start first wave immediately for wave gap mode
 
-  console.log('Initializing toggle delay with timer:', slntToggleDelayTimer);
+  console.log('Initializing toggle delay system');
 
   // Initialize slant values for all cells
   for (let i = 0; i < totalCells; i++) {
@@ -882,8 +917,43 @@ slntToggleDelayTransition.addEventListener('input', updateToggleDelayTransitionT
 // Event listeners for toggle delay controls
 slntToggleDelayTimeGap.addEventListener('input', () => {
   if (slntToggleDelayActive) {
-    slntToggleDelayTimer = parseFloat(slntToggleDelayTimeGap.value) || 0.5;
+    console.log('Delay updated to:', parseFloat(slntToggleDelayTimeGap.value) || 0.1);
+    // The new delay value will be used by existing waves on their next update
   }
+});
+
+slntToggleDelayWaveGap.addEventListener('input', () => {
+  // Wave gap changes don't immediately affect the timer, but will be used on next wave
+  if (slntToggleDelayActive) {
+    console.log('Wave gap updated to:', parseFloat(slntToggleDelayWaveGap.value) || 4.0);
+  }
+});
+
+slntToggleDelayResetToggle.addEventListener('change', () => {
+  if (slntToggleDelayActive) {
+    console.log('Reset toggle changed to:', slntToggleDelayResetToggle.checked);
+
+    if (slntToggleDelayResetToggle.checked) {
+      // Switching to reset mode: clear waves and reset all cells
+      slntToggleDelayWaves = [];
+      slntToggleDelayCurrentIndex = 0;
+      slntToggleDelayTimer = 0; // Start immediately
+
+      // Reset all cells to default state
+      for (let i = 0; i < slntToggleDelayValues.length; i++) {
+        slntToggleDelayValues[i] = 0;
+      }
+      console.log('Toggle delay: switched to reset mode, cleared all cells');
+    } else {
+      // Switching to wave gap mode: clear sequential state and start waves
+      slntToggleDelayCurrentIndex = 0;
+      slntToggleDelayWaves = [];
+      slntToggleDelayWaveTimer = 0; // Start first wave immediately
+      console.log('Toggle delay: switched to wave gap mode, starting waves');
+    }
+  }
+  // Toggle visibility of wave gap field
+  toggleWaveGapVisibility();
 });
 
 slntToggleDelayType.addEventListener('change', () => {
@@ -891,6 +961,22 @@ slntToggleDelayType.addEventListener('change', () => {
     initializeSlntToggleDelay();
   }
 });
+
+// Function to toggle wave gap field visibility
+function toggleWaveGapVisibility() {
+  const waveGapLabel = slntToggleDelayWaveGap.parentElement;
+  if (slntToggleDelayResetToggle.checked) {
+    // Reset mode: disable wave gap field
+    waveGapLabel.classList.remove('wave-gap-hidden');
+    waveGapLabel.classList.add('wave-gap-disabled');
+    slntToggleDelayWaveGap.disabled = true;
+  } else {
+    // Wave gap mode: enable wave gap field
+    waveGapLabel.classList.remove('wave-gap-hidden');
+    waveGapLabel.classList.remove('wave-gap-disabled');
+    slntToggleDelayWaveGap.disabled = false;
+  }
+}
 
 // Function to update transition time
 function updateTransitionTime() {
@@ -951,6 +1037,9 @@ function animate() {
 fillGrid();
 animate();
 
+// Set initial wave gap visibility
+toggleWaveGapVisibility();
+
 // When switching away from video mode, pause the video
 weightMode.addEventListener('change', () => {
   if (weightMode.value !== 'video') {
@@ -986,5 +1075,52 @@ function applyEasing(t, easingType) {
     case 'linear':
     default:
       return t;
+  }
+}
+
+// Wave class for managing individual waves
+class ToggleDelayWave {
+  constructor(startTime, delayType, order) {
+    this.startTime = startTime;
+    this.delayType = delayType;
+    this.order = [...order]; // Copy the order array
+    this.currentIndex = 0;
+    this.timer = 0;
+    this.active = true;
+  }
+
+  update(deltaTime, timeGap) {
+    if (!this.active) return;
+
+    this.timer -= deltaTime;
+
+    if (this.timer <= 0) {
+      if (this.currentIndex < this.order.length) {
+        // Activate next item in this wave
+        const cellIndex = this.order[this.currentIndex];
+
+        // Check if this is a row-based mode
+        if (this.delayType === 'rowsAscending' || this.delayType === 'rowsDescending') {
+          // For row modes, activate the entire row at once
+          const rowIndex = Math.floor(cellIndex / cols);
+          const startCellIndex = rowIndex * cols;
+          const endCellIndex = startCellIndex + cols;
+
+          // Toggle all cells in this row
+          for (let i = startCellIndex; i < endCellIndex; i++) {
+            slntToggleDelayValues[i] = slntToggleDelayValues[i] === -16 ? 0 : -16;
+          }
+        } else {
+          // For cell modes, activate just this cell
+          slntToggleDelayValues[cellIndex] = slntToggleDelayValues[cellIndex] === -16 ? 0 : -16;
+        }
+
+        this.currentIndex++;
+        this.timer = timeGap; // Set timer for next activation
+      } else {
+        // Wave completed
+        this.active = false;
+      }
+    }
   }
 }
