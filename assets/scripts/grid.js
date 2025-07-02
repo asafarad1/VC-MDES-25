@@ -542,7 +542,7 @@ function updateGrid() {
         if (slntToggleDelayCurrentIndex < slntToggleDelayOrder.length) {
           const cellIndex = slntToggleDelayOrder[slntToggleDelayCurrentIndex];
 
-          // Check if this is a row-based mode
+          // Check if this is a row-based or column-based mode
           const delayType = slntToggleDelayType.value;
           if (delayType === 'rowsAscending' || delayType === 'rowsDescending') {
             // For row modes, activate the entire row at once
@@ -553,6 +553,15 @@ function updateGrid() {
             // Toggle all cells in this row
             for (let i = startCellIndex; i < endCellIndex; i++) {
               slntToggleDelayValues[i] = slntToggleDelayValues[i] === -16 ? 0 : -16;
+            }
+          } else if (delayType === 'colsAscending' || delayType === 'colsDescending') {
+            // For column modes, activate the entire column at once
+            const colIndex = cellIndex % cols;
+
+            // Toggle all cells in this column
+            for (let r = 0; r < rows; r++) {
+              const cellIndex = r * cols + colIndex;
+              slntToggleDelayValues[cellIndex] = slntToggleDelayValues[cellIndex] === -16 ? 0 : -16;
             }
           } else {
             // For cell modes, activate just this cell
@@ -842,6 +851,18 @@ function initializeSlntToggleDelay() {
       const cellIndex = r * cols; // First cell of each row
       slntToggleDelayOrder.push(cellIndex);
     }
+  } else if (delayType === 'colsAscending') {
+    // Process columns from left to right - only include first cell of each column
+    for (let c = 0; c < cols; c++) {
+      const cellIndex = c; // First cell of each column
+      slntToggleDelayOrder.push(cellIndex);
+    }
+  } else if (delayType === 'colsDescending') {
+    // Process columns from right to left - only include first cell of each column
+    for (let c = cols - 1; c >= 0; c--) {
+      const cellIndex = c; // First cell of each column
+      slntToggleDelayOrder.push(cellIndex);
+    }
   } else if (delayType === 'cellsAscending') {
     // Process cells in ascending order (left to right, top to bottom) - skip spaces
     for (let i = 0; i < totalCells; i++) {
@@ -1099,7 +1120,7 @@ class ToggleDelayWave {
         // Activate next item in this wave
         const cellIndex = this.order[this.currentIndex];
 
-        // Check if this is a row-based mode
+        // Check if this is a row-based or column-based mode
         if (this.delayType === 'rowsAscending' || this.delayType === 'rowsDescending') {
           // For row modes, activate the entire row at once
           const rowIndex = Math.floor(cellIndex / cols);
@@ -1109,6 +1130,15 @@ class ToggleDelayWave {
           // Toggle all cells in this row
           for (let i = startCellIndex; i < endCellIndex; i++) {
             slntToggleDelayValues[i] = slntToggleDelayValues[i] === -16 ? 0 : -16;
+          }
+        } else if (this.delayType === 'colsAscending' || this.delayType === 'colsDescending') {
+          // For column modes, activate the entire column at once
+          const colIndex = cellIndex % cols;
+
+          // Toggle all cells in this column
+          for (let r = 0; r < rows; r++) {
+            const cellIndex = r * cols + colIndex;
+            slntToggleDelayValues[cellIndex] = slntToggleDelayValues[cellIndex] === -16 ? 0 : -16;
           }
         } else {
           // For cell modes, activate just this cell

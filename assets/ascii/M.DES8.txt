@@ -1,0 +1,45 @@
+                                                           
+                                                           
+                QQQQQ           QQQQQQ                     
+               RRRRRQQ         RRRRRQQ                     
+               RRRRRRQQ       RRRRRRQQ                     
+               RRRRRRRQQ     RRRRRRRQQ                     
+               RRRRRRRRQQ   RRRRRRRRQQ                     
+               RRRRRRRRRQQ RRRRRRRRRQQ                     
+               RRRRRRRRRRQQRRRRRRRRRQQ                     
+               RRRRRRRRRRRRRRRRRRRRRQQ                     
+               RRRRRQRRRRRRRRRRRRRRRQQ                     
+               RRRRRQQ RRRRRQQ RRRRRQQ                     
+               RRRRRQQ  RRRQQ  RRRRRQQ                     
+               RRRRRQQ   RRQ   RRRRRQQ       QQQQ          
+               RRRRRQQ         RRRRRQQ      RRRRQQ         
+               RRRRRQQ         RRRRRQQ     RRRRRRQQ        
+               RRRRRQQ         RRRRRQQ     RRRRRRQQ        
+               RRRRRQ          RRRRRQ       RRRRQQ         
+                                                           
+    QQQQQQQQQQQQ                            QQQQQQQQ       
+   RRRRRRRRRRRRRQQ                        RRRRRRRRRRQ      
+   RRRRRRRRRRRRRRQQ                      RRRRRRRRRRRRQQ    
+   RRRRRQQ RRRRRRQQ                    RRRRRQ    RRRRRQQ   
+   RRRRRQQ  RRRRRRQQ                   RRRRRQQ   RRRRRQQ   
+   RRRRRQQ   RRRRRQQ    QQQQQQQQQQQQ    RRRRRQQ            
+   RRRRRQQ   RRRRRQQ   RRRRRRRRRRRQQ     RRRRRQQ           
+   RRRRRQQ   RRRRRQQ   RRRRRRRRRRRQQ      RRRRRQQ          
+   RRRRRQQ   RRRRRQQ   RRRRRRRRRRRQQ       RRRRRQQ         
+   RRRRRQQ   RRRRRQQ   RRRRRRRRRRRQ         RRRRRQQ        
+   RRRRRQQ   RRRRRQQ   RRRRRQQ               RRRRRQQ       
+   RRRRRQQ   RRRRRQQ   RRRRRQQ                RRRRRQQ      
+   RRRRRQQ  RRRRRRQQ   RRRRRQQQQQQQQ   QQQQQ   RRRRRQQ     
+   RRRRRQQ RRRRRRRQ    RRRRRRRRRRRQQ  RRRRRQQ   RRRRRQQ    
+   RRRRRQQRRRRRRRQ     RRRRRRRRRRRQQ  RRRRRQQQQQRRRRRQQ    
+   RRRRRRRRRRRRRQ      RRRRRRRRRRRQQ   RRRRRRRRRRRRQQ      
+   RRRRRRRRRRRQ        RRRRRQQ          RRRRRRRRRRQ        
+                       RRRRRQQ                             
+                       RRRRRQQ               QQQQ          
+                       RRRRRQQQQQQQQ        RRRRQQ         
+                       RRRRRRRRRRRQQ       RRRRRRQQ        
+                       RRRRRRRRRRRQQ       RRRRRRQQ        
+                       RRRRRRRRRRRQ         RRRRQQ         
+                                                           
+                                                           
+                                                           
