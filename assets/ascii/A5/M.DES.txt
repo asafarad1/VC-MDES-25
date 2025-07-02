@@ -1,0 +1,45 @@
+                                                           
+                                                           
+                DDDDD           DDDDDD                     
+               gggggDD         gggggDD                     
+               ggggggDD       ggggggDD                     
+               gggggggDD     gggggggDD                     
+               ggggggggDD   ggggggggDD                     
+               gggggggggDD gggggggggDD                     
+               ggggggggggDDgggggggggDD                     
+               gggggggggggggggggggggDD                     
+               gggggDgggggggggggggggDD                     
+               gggggDD gggggDD gggggDD                     
+               gggggDD  gggDD  gggggDD                     
+               gggggDD   ggD   gggggDD       DDDD          
+               gggggDD         gggggDD      ggggDD         
+               gggggDD         gggggDD     ggggggDD        
+               gggggDD         gggggDD     ggggggDD        
+               gggggD          gggggD       ggggDD         
+                                                           
+    DDDDDDDDDDDD                            DDDDDDDD       
+   gggggggggggggDD                        ggggggggggD      
+   ggggggggggggggDD                      ggggggggDgggDD    
+   gggggDD ggggggDD                    gggggD    gggggDD   
+   gggggDD  ggggggDD                   gggggDD   gggggDD   
+   gggggDD   gggggDD    DDDDDDDDDDDD    gggggDD            
+   gggggDD   gggggDD   gggggggggggDD     gggggDD           
+   gggggDD   gggggDD   gggggggggggDD      gggggDD          
+   gggggDD   gggggDD   gggggggggggDD       gggggDD         
+   gggggDD   gggggDD   gggggggggggD         gggggDD        
+   gggggDD   gggggDD   gggggDD               gggggDD       
+   gggggDD   gggggDD   gggggDD                gggggDD      
+   gggggDD  ggggggDD   gggggDDDDDDDD   DDDDD   gggggDD     
+   gggggDD gggggggD    gggggggggggDD  gggggDD   gggggDD    
+   gggggDDgggggggD     gggggggggggDD  gggggDDDDDgggggDD    
+   gggggggggggggD      gggggggggggDD   ggggggggggggDD      
+   gggggggggggD        gggggDD          ggggggggggD        
+                       gggggDD                             
+                       gggggDD               DDDD          
+                       gggggDDDDDDDD        ggggDD         
+                       gggggggggggDD       ggggggDD        
+                       gggggggggggDD       ggggggDD        
+                       gggggggggggD         ggggDD         
+                                                           
+                                                           
+                                                           

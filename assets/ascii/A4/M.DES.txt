@@ -1,0 +1,45 @@
+                                                           
+                                                           
+                rrrrr           rrrrrr                     
+               RRRRRrr         RRRRRrr                     
+               RRRRRRrr       RRRRRRrr                     
+               RRRRRRRrr     RRRRRRRrr                     
+               RRRRRRRRrr   RRRRRRRRrr                     
+               RRRRRRRRRrr RRRRRRRRRrr                     
+               RRRRRRRRRRrrRRRRRRRRRrr                     
+               RRRRRRRRRRRRRRRRRRRRRrr                     
+               RRRRRrRRRRRRRRRRRRRRRrr                     
+               RRRRRrr RRRRRrr RRRRRrr                     
+               RRRRRrr  RRRrr  RRRRRrr                     
+               RRRRRrr   RRr   RRRRRrr       rrrr          
+               RRRRRrr         RRRRRrr      RRRRrr         
+               RRRRRrr         RRRRRrr     RRRRRRrr        
+               RRRRRrr         RRRRRrr     RRRRRRrr        
+               RRRRRr          RRRRRr       RRRRrr         
+                                                           
+    rrrrrrrrrrrr                            rrrrrrrr       
+   RRRRRRRRRRRRRrr                        RRRRRRRRRRr      
+   RRRRRRRRRRRRRRrr                      RRRRRRRRrRRRrr    
+   RRRRRrr RRRRRRrr                    RRRRRr    RRRRRrr   
+   RRRRRrr  RRRRRRrr                   RRRRRrr   RRRRRrr   
+   RRRRRrr   RRRRRrr    rrrrrrrrrrrr    RRRRRrr            
+   RRRRRrr   RRRRRrr   RRRRRRRRRRRrr     RRRRRrr           
+   RRRRRrr   RRRRRrr   RRRRRRRRRRRrr      RRRRRrr          
+   RRRRRrr   RRRRRrr   RRRRRRRRRRRrr       RRRRRrr         
+   RRRRRrr   RRRRRrr   RRRRRRRRRRRr         RRRRRrr        
+   RRRRRrr   RRRRRrr   RRRRRrr               RRRRRrr       
+   RRRRRrr   RRRRRrr   RRRRRrr                RRRRRrr      
+   RRRRRrr  RRRRRRrr   RRRRRrrrrrrrr   rrrrr   RRRRRrr     
+   RRRRRrr RRRRRRRr    RRRRRRRRRRRrr  RRRRRrr   RRRRRrr    
+   RRRRRrrRRRRRRRr     RRRRRRRRRRRrr  RRRRRrrrrrRRRRRrr    
+   RRRRRRRRRRRRRr      RRRRRRRRRRRrr   RRRRRRRRRRRRrr      
+   RRRRRRRRRRRr        RRRRRrr          RRRRRRRRRRr        
+                       RRRRRrr                             
+                       RRRRRrr               rrrr          
+                       RRRRRrrrrrrrr        RRRRrr         
+                       RRRRRRRRRRRrr       RRRRRRrr        
+                       RRRRRRRRRRRrr       RRRRRRrr        
+                       RRRRRRRRRRRr         RRRRrr         
+                                                           
+                                                           
+                                                           
